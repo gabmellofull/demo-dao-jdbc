@@ -52,17 +52,9 @@ public class SellerDaoJDBC implements SellerDao {
 
             if (rs.next()) { //verifica se foi recebido algum valor, caso sim ele executa o if
 
-                Department dep = new Department(); //instancia um novo objeto department
-                dep.setId(rs.getInt("DepartmentId")); //passa o id que ta no banco para o id do objeto
-                dep.setName(rs.getString("DepName")); //passa o nome que ta no banco para o nome no objeto
+                Department dep = instanciateDepartment(rs);
 
-                Seller sell = new Seller();
-                sell.setId(rs.getInt("Id"));
-                sell.setName(rs.getString("Name"));
-                sell.setEmail(rs.getString("Email"));
-                sell.setBaseSalary(rs.getDouble("BaseSalary"));
-                sell.setBirthDate(rs.getDate("birthDate"));
-                sell.setDepartment(dep);
+                Seller sell = instanciateSeller(rs, dep);
 
                 return sell;
             }
@@ -78,6 +70,25 @@ public class SellerDaoJDBC implements SellerDao {
         }
 
 
+    }
+
+    private Seller instanciateSeller(ResultSet rs, Department dep) throws SQLException{
+        Seller sell = new Seller();
+        sell.setId(rs.getInt("Id"));
+        sell.setName(rs.getString("Name"));
+        sell.setEmail(rs.getString("Email"));
+        sell.setBaseSalary(rs.getDouble("BaseSalary"));
+        sell.setBirthDate(rs.getDate("birthDate"));
+        sell.setDepartment(dep);
+        return sell;
+    }
+
+    private Department instanciateDepartment(ResultSet rs) throws SQLException{
+
+        Department dep = new Department(); //instancia um novo objeto department
+        dep.setId(rs.getInt("DepartmentId")); //passa o id que ta no banco para o id do objeto
+        dep.setName(rs.getString("DepName")); //passa o nome que ta no banco para o nome no objeto
+        return dep;
     }
 
     @Override
