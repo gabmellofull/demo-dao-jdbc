@@ -6,15 +6,16 @@ import java.sql.*;
 import java.util.Properties;
 
 public class DB {
+ // ******************* CONECTAR COM O BANCO *************************************
 
-    private static Connection conn = null;
+    private static Connection conn = null; //objeto do jdbc de conexão com o banco
 
-    public static Connection getConnection(){
-        if(conn == null){
+    public static Connection getConnection(){ // método para conectar com o banco
+        if(conn == null){ //pula o processo se já houver a conexão
             try {
-                Properties props = loadProperties();
-                String url = props.getProperty("dburl");
-                conn = DriverManager.getConnection(url, props);
+                Properties props = loadProperties(); //pega as propriedades de conexão
+                String url = props.getProperty("dburl"); // pega a string url do arquivo props
+                conn = DriverManager.getConnection(url, props); //conecta com o banco de dados
             }
             catch (SQLException e){
                 throw new DbException(e.getMessage());
@@ -23,10 +24,12 @@ public class DB {
         return conn;
     }
 
+    //**************************** FECHAR CONEXÃO *******************************
+
     public static void closeConnection(){
-        if(conn != null){
+        if(conn != null){ //Testa se a conexao está instanciada
             try{
-                conn.close();
+                conn.close(); //fecha a conexão
             }
             catch (SQLException e){
                 throw new DbException(e.getMessage());
@@ -34,10 +37,12 @@ public class DB {
         }
     }
 
-    private static Properties loadProperties(){
-        try (FileInputStream fs = new FileInputStream("db.properties")){
-            Properties props = new Properties();
-            props.load(fs);
+    //****************************** CARREGAR PROPRIEDADES ***************************************
+
+    private static Properties loadProperties(){ //carregar o arquivo de propriedades
+        try (FileInputStream fs = new FileInputStream("db.properties")){ //cria stream com o arquivo
+            Properties props = new Properties(); // instancia um objeto properties
+            props.load(fs); //carrega o arquivo dentro do objeto properties
             return props;
         }
         catch (IOException e){
