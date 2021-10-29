@@ -10,7 +10,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SellerDaoJDBC implements SellerDao {
 
@@ -94,5 +97,49 @@ public class SellerDaoJDBC implements SellerDao {
     @Override
     public List<Seller> findAll() {
         return null;
+    }
+
+    @Override
+    public List<Seller> findByDepartment(Department department) {
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        try {
+            st = conn.prepareStatement(
+                    "SELECT seller.*,department.Name as DepName"
+                    + " FROM seller INNER JOIN department"
+                    + " ON seller.DepartmentId = department.Id"
+                    + " WHERE DepartmentId = ?"
+                    + " ORDER BY Name"
+            );
+
+            st.setInt(1, department.getId());
+            rs = st.executeQuery(); //recebe a tabela
+
+            List<Seller> list = new ArrayList<>();
+            Map<Integer, Department> map = new HashMap<>();
+
+            while (rs.next()) { //verifica se foi recebido algum valor, caso sim ele executa o while
+
+                Department dep = map.get(rs.getInt("DepartmentId"));
+
+                if (dep == null){
+                    dep = instanciateDepartment(rs);
+                    map.put(rs.getInt("DepartmentId"), dep);
+                }
+
+                Seller sell = instanciateSeller(rs, dep);
+
+                list.add(sell);
+            }
+            return list;
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        }
+
+        finally {
+            DB.closeStatement(st);
+            DB.closeResultSet(rs);
+            //não fecha a conexão pois o mesmo objeto pode servir para mais de uma operação
+        }
     }
 }
